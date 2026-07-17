@@ -28,7 +28,7 @@ Open `sinha-invoice.html` in a web browser. No installation, no internet needed 
 | Setting | Value |
 |---|---|
 | Bluetooth type | Classic (v2.1 + EDR) — *not* BLE on most units |
-| Pairing PIN | Usually `0000` |
+| Pairing PIN |'1234' Usually `0000` |
 | Baud rate | 57600 (fixed — do not change) |
 | Paper | 80mm thermal roll |
 | Line width | 48 characters (matches the app exactly) |
@@ -41,7 +41,7 @@ The easiest and most reliable way to print.
 
 **One-time setup:**
 1. Install the free **RawBT** app from the Google Play Store.
-2. Turn the printer ON. In your phone's **Settings → Bluetooth**, pair with **PORTI-SW40** (PIN `0000`).
+2. Turn the printer ON. In your phone's **Settings → Bluetooth**, pair with **PORTI-SW40** (PIN `1234`).
 3. Open **RawBT → Settings → Connection method → Bluetooth**, and select the PORTI-SW40.
 4. In RawBT, run its test print once to confirm.
 
@@ -75,7 +75,7 @@ Apple does not allow web pages (or ordinary apps) to talk to Bluetooth *Classic*
 Works in **Chrome** or **Edge** (not Firefox/Safari).
 
 **One-time setup:**
-1. Turn the printer ON. Pair it in **Windows Settings → Bluetooth** (PIN `0000`).
+1. Turn the printer ON. Pair it in **Windows Settings → Bluetooth** (PIN `1234`).
 2. Windows creates a COM port for it. If you want to check: *Control Panel → Bluetooth settings → COM Ports* — note the **Outgoing** port (e.g. COM5).
 
 **Daily use:**
@@ -125,7 +125,7 @@ Works in **Chrome** or **Edge** (not Firefox/Safari).
 | සැකසුම | අගය |
 |---|---|
 | Bluetooth වර්ගය | Classic (v2.1 + EDR) — බොහෝ ඒකකවල BLE නැත |
-| Pair කිරීමේ PIN | සාමාන්‍යයෙන් `0000` |
+| Pair කිරීමේ PIN | '1234' සාමාන්‍යයෙන් `0000` |
 | Baud rate | 57600 (ස්ථිරයි — වෙනස් නොකරන්න) |
 | කඩදාසිය | 80mm thermal roll |
 | පේළියක අකුරු | 48 (යෙදුමට හරියටම ගැළපේ) |
@@ -138,7 +138,7 @@ Works in **Chrome** or **Edge** (not Firefox/Safari).
 
 **එක් වරක් පමණක් කළ යුතු දේ:**
 1. Google Play Store එකෙන් නොමිලේ ලැබෙන **RawBT** යෙදුම install කරන්න.
-2. ප්‍රින්ටරය ON කරන්න. දුරකථනයේ **Settings → Bluetooth** වෙත ගොස් **PORTI-SW40** සමඟ pair කරන්න (PIN `0000`).
+2. ප්‍රින්ටරය ON කරන්න. දුරකථනයේ **Settings → Bluetooth** වෙත ගොස් **PORTI-SW40** සමඟ pair කරන්න (PIN `1234`).
 3. **RawBT → Settings → Connection method → Bluetooth** තෝරා, PORTI-SW40 select කරන්න.
 4. RawBT තුළින් test print එකක් කර තහවුරු කරගන්න.
 
@@ -172,7 +172,7 @@ Apple සමාගම web පිටුවලට (සහ සාමාන්‍ය
 **Chrome** හෝ **Edge** තුළ වැඩ කරයි (Firefox/Safari නොවේ).
 
 **එක් වරක් පමණක්:**
-1. ප්‍රින්ටරය ON කර **Windows Settings → Bluetooth** තුළින් pair කරන්න (PIN `0000`).
+1. ප්‍රින්ටරය ON කර **Windows Settings → Bluetooth** තුළින් pair කරන්න (PIN `1234`).
 2. Windows විසින් COM port එකක් සාදයි. පරීක්ෂා කිරීමට: *Control Panel → Bluetooth settings → COM Ports* — **Outgoing** port එක (උදා: COM5) සටහන් කරගන්න.
 
 **දිනපතා භාවිතය:**
