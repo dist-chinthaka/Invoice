@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sinha Distributor — Invoice</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --ink: #1a1a1a;
+    --ink2: #444;
+    --ink3: #888;
+    --rule: #ddd;
+    --bg: #f7f5f0;
+    --surface: #ffffff;
+    --accent: #c0392b;
+    --accent2: #e8f4f0;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── TOP NAV ── */
+  .topbar {
+    background: var(--ink);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-brand { font-family: var(--mono); font-size: 14px; letter-spacing: 0.08em; color: #fff; }
+  .topbar-brand span { color: #e87777; }
+  .nav-tabs { display: flex; gap: 2px; }
+  .nav-tab {
+    padding: 6px 14px;
+    background: none;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 13px;
+    border-radius: 4px;
+    transition: all 0.15s;
+  }
+  .nav-tab:hover { color: #fff; background: #333; }
+  .nav-tab.active { color: #fff; background: var(--accent); }
+
+  /* ── PANELS ── */
+  .panel { display: none; padding: 24px 20px; max-width: 780px; margin: 0 auto; }
+  .panel.active { display: block; }
+
+  /* ── SECTION HEADERS ── */
+  .sec-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .sec-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    border-left: 3px solid var(--accent);
+    padding-left: 8px;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+
+  /* ── FORM FIELDS ── */
+  .field-grid { display: grid; gap: 10px; margin-bottom: 10px; }
+  .field-grid.two { grid-template-columns: 1fr 1fr; }
+  .field-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .field-grid.one { grid-template-columns: 1fr; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 11px; color: var(--ink3); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
+  input[type=text], input[type=date], input[type=number], select {
+    height: 36px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 0 10px;
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--ink);
+    background: #fff;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #a93226; }
+  .btn-outline { background: none; border: 1px solid var(--rule); color: var(--ink2); }
+  .btn-outline:hover { border-color: #999; background: #f5f5f5; }
+  .btn-ghost { background: none; border: none; color: var(--ink3); padding: 4px 8px; font-size: 13px; }
+  .btn-ghost:hover { color: var(--accent); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-pdf { background: #1a1a1a; color: #fff; width: 100%; justify-content: center; padding: 12px; font-size: 14px; }
+  .btn-pdf:hover { background: #333; }
+  .btn-print { background: #1a6b55; color: #fff; }
+  .btn-print:hover { background: #145544; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── PRINT STATUS ── */
+  .print-status {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: var(--mono);
+  }
+  .print-status.show { display: flex; }
+  .print-status.ok   { background: var(--accent2); color: #1a6b55; }
+  .print-status.err  { background: #fdeeec; color: var(--accent); }
+  .print-status.busy { background: #fef6e0; color: #8a6d00; }
+
+  .conn-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #ccc;
+    margin-right: 6px;
+  }
+  .conn-dot.on { background: #1a6b55; box-shadow: 0 0 0 3px rgba(26,107,85,0.15); }
+
+  /* ── PRODUCT CATALOGUE ── */
+  .cat-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .cat-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    border-bottom: 2px solid var(--rule);
+    background: #fafafa;
+  }
+  .cat-table td { padding: 8px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+  .cat-table tr:last-child td { border-bottom: none; }
+  .cat-table tr:hover td { background: #fafafa; }
+  .cat-table input {
+    height: 30px;
+    font-size: 12px;
+    padding: 0 6px;
+    border: 1px solid transparent;
+    background: transparent;
+  }
+  .cat-table input:hover { border-color: var(--rule); background: #fff; }
+  .cat-table input:focus { border-color: var(--accent); background: #fff; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--accent2);
+    color: #1a6b55;
+    font-family: var(--mono);
+  }
+
+  /* ── ADD PRODUCT FORM ── */
+  .add-product-form {
+    display: grid;
+    grid-template-columns: 2fr 80px 80px 90px auto;
+    gap: 8px;
+    align-items: end;
+    padding: 14px;
+    background: #fafaf8;
+    border: 1px dashed var(--rule);
+    border-radius: 6px;
+    margin-top: 12px;
+  }
+  .add-product-form input { height: 34px; font-size: 13px; padding: 0 8px; border: 1px solid var(--rule); border-radius: 4px; }
+
+  /* ── INVOICE ITEMS ── */
+  .items-header {
+    display: grid;
+    grid-template-columns: 30px 1fr 70px 55px 75px 75px 32px;
+    gap: 6px;
+    padding: 6px 8px;
+    background: #fafafa;
+    border: 1px solid var(--rule);
+    border-radius: 4px 4px 0 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .item-row {
+    display: grid;
+    grid-template-columns: 30px 1fr 70px 55px 75px 75px 32px;
+    gap: 6px;
+    padding: 5px 8px;
+    border: 1px solid var(--rule);
+    border-top: none;
+    align-items: center;
+    background: #fff;
+  }
+  .item-row:last-child { border-radius: 0 0 4px 4px; }
+  .item-row input {
+    height: 30px;
+    font-size: 12px;
+    padding: 0 6px;
+    text-align: right;
+  }
+  .item-row .item-desc {
+    font-size: 12px;
+    color: var(--ink2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: var(--mono);
+  }
+  .item-num { font-family: var(--mono); font-size: 12px; color: var(--ink3); text-align: center; }
+  .item-amt { font-family: var(--mono); font-size: 12px; font-weight: 600; text-align: right; padding-right: 4px; }
+  .del-item { background: none; border: none; color: #ccc; cursor: pointer; font-size: 16px; width: 28px; height: 28px; border-radius: 3px; display: flex; align-items: center; justify-content: center; }
+  .del-item:hover { color: var(--accent); background: #fff0ee; }
+
+  /* product picker dropdown */
+  .picker-wrap { position: relative; }
+  .picker-input {
+    width: 100%;
+    height: 34px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 0 8px;
+    font-size: 13px;
+    cursor: pointer;
+    background: #fff;
+  }
+  .picker-dropdown {
+    display: none;
+    position: absolute;
+    top: 38px; left: 0;
+    width: 340px;
+    max-height: 240px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    z-index: 200;
+  }
+  .picker-dropdown.open { display: block; }
+  .picker-search { padding: 8px; border-bottom: 1px solid var(--rule); position: sticky; top: 0; background: #fff; }
+  .picker-search input { width: 100%; height: 30px; font-size: 12px; border: 1px solid var(--rule); border-radius: 3px; padding: 0 8px; }
+  .picker-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .picker-item:hover { background: #fafaf5; }
+  .picker-item-name { font-size: 13px; color: var(--ink); }
+  .picker-item-meta { font-family: var(--mono); font-size: 11px; color: var(--ink3); }
+
+  /* ── TOTALS ── */
+  .totals-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    padding: 14px 16px;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 0 0 6px 6px;
+    margin-top: -1px;
+  }
+  .total-line { display: flex; gap: 40px; font-size: 13px; align-items: center; }
+  .total-label { color: #aaa; font-size: 12px; }
+  .total-amount { font-family: var(--mono); font-weight: 600; font-size: 18px; }
+
+  /* ── RECEIPT PREVIEW ── */
+  .receipt-wrap {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+  }
+  .receipt-text {
+    font-family: 'Courier New', monospace;
+    font-size: 12.5px;
+    line-height: 1.65;
+    white-space: pre;
+    color: #1a1a1a;
+  }
+
+  .help-note { font-size: 12px; color: var(--ink3); line-height: 1.55; margin-top: 10px; }
+  .help-note b { color: var(--ink2); }
+  .help-note code { font-family: var(--mono); font-size: 11px; background: #f0eee8; padding: 1px 5px; border-radius: 3px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .topbar-brand { font-size: 12px; }
+    .nav-tab { padding: 6px 10px; font-size: 12px; }
+    .field-grid.two, .field-grid.three { grid-template-columns: 1fr; }
+    .items-header, .item-row {
+      grid-template-columns: 24px 1fr 55px 45px 65px 65px 28px;
+      gap: 4px;
+    }
+    .add-product-form { grid-template-columns: 1fr 1fr; }
+    .add-product-form .btn { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">SINHA <span>///</span> INVOICE</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPanel('invoice')">Invoice</button>
+    <button class="nav-tab" onclick="showPanel('catalogue')">Products</button>
+    <button class="nav-tab" onclick="showPanel('preview')">Preview</button>
+  </div>
+</div>
+
+<!-- ════════════════════ INVOICE PANEL ════════════════════ -->
+<div id="panel-invoice" class="panel active">
+
+  <div class="card">
+    <div class="sec-title" style="margin-bottom:14px">Business Details</div>
+    <div class="field-grid one">
+      <div class="field"><label>Business Name</label><input type="text" id="biz-name" value="SINHA DISTRIBUTOR"></div>
+    </div>
+    <div class="field-grid one">
+      <div class="field"><label>Address</label><input type="text" id="biz-addr" value="NO. 314, PUTTLAM ROAD, GALAPITIYAGAMA, NIKAWERATIYA."></div>
+    </div>
+    <div class="field-grid two">
+      <div class="field"><label>Phone</label><input type="text" id="biz-phone" value="076 9233885"></div>
+      <div class="field"><label>Serial No</label><input type="text" id="serial-no" value="25641"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title" style="margin-bottom:14px">Customer & Date</div>
+    <div class="field-grid two">
+      <div class="field"><label>Customer Name / Address</label><input type="text" id="cust-name" value="NIRMALA ST, HETTIPOLA"></div>
+      <div class="field"><label>Bill Date</label><input type="date" id="bill-date" value="2026-05-02"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-head">
+      <div class="sec-title">Invoice Items</div>
+      <button class="btn btn-outline btn-sm" onclick="openPicker()">+ Add Item</button>
+    </div>
+
+    <!-- Product Picker Dropdown -->
+    <div class="picker-wrap" id="picker-wrap">
+      <div id="picker-dropdown" class="picker-dropdown">
+        <div class="picker-search"><input type="text" id="picker-search" placeholder="Search product..." oninput="filterPicker(this.value)"></div>
+        <div id="picker-list"></div>
+      </div>
+    </div>
+
+    <div class="items-header">
+      <span>#</span><span>Description</span><span>Unit</span><span>Qty</span><span>Rate</span><span>Amount</span><span></span>
+    </div>
+    <div id="invoice-items"></div>
+
+    <div class="totals-box">
+      <div class="total-line"><span class="total-label">NET (Rs.)</span><span class="total-amount" id="grand-total">0.00</span></div>
+    </div>
+  </div>
+
+  <!-- ── PRINTER CARD ── -->
+  <div class="card">
+    <div class="sec-head">
+      <div class="sec-title">Bluetooth Printer — Woosim Porti-SW40</div>
+      <span style="font-size:12px;color:var(--ink3)"><span class="conn-dot" id="conn-dot"></span><span id="conn-label">Not connected</span></span>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-print" id="btn-serial-connect" onclick="connectSerial()">🔗 Connect (Laptop / PC)</button>
+      <button class="btn btn-print" id="btn-ble-connect" onclick="connectBLE()">🔗 Connect (Bluetooth)</button>
+      <button class="btn btn-primary" id="btn-print" onclick="printReceipt()">🖨 Print Receipt</button>
+      <button class="btn btn-outline" onclick="printReceipt(true)" id="btn-test">Test Print</button>
+      <button class="btn btn-outline" id="btn-share" onclick="sharePDF()">📤 Share Bill (PDF)</button>
+    </div>
+    <div class="print-status" id="print-status"></div>
+    <div class="help-note" id="print-help"></div>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-top:4px">
+    <button class="btn btn-outline" style="flex:1" onclick="showPanel('preview');genPreview()">Preview Receipt</button>
+    <button class="btn btn-primary" style="flex:1" onclick="downloadPDF()">⬇ Download PDF</button>
+  </div>
+</div>
+
+<!-- ════════════════════ CATALOGUE PANEL ════════════════════ -->
+<div id="panel-catalogue" class="panel">
+
+  <div class="card">
+    <div class="sec-head">
+      <div class="sec-title">Product Catalogue</div>
+      <span style="font-size:12px;color:var(--ink3)" id="cat-count"></span>
+    </div>
+
+    <table class="cat-table" id="cat-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Product Name / Description</th>
+          <th>Unit</th>
+          <th>Default Rate</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="cat-body"></tbody>
+    </table>
+
+    <div class="add-product-form" id="add-form">
+      <div class="field"><label>Product Name</label><input type="text" id="new-name" placeholder="e.g. SAMAPOSHA 200G"></div>
+      <div class="field"><label>Unit</label><input type="text" id="new-unit" placeholder="PKT"></div>
+      <div class="field"><label>Rate (Rs.)</label><input type="number" id="new-rate" placeholder="0.00" step="0.01"></div>
+      <button class="btn btn-primary" onclick="addProduct()" style="height:36px;margin-top:auto">Add</button>
+    </div>
+    <p style="font-size:12px;color:var(--ink3);margin-top:10px">Click any field in the table to edit it directly. Changes save automatically.</p>
+  </div>
+</div>
+
+<!-- ════════════════════ PREVIEW PANEL ════════════════════ -->
+<div id="panel-preview" class="panel">
+  <div class="sec-head" style="margin-bottom:12px">
+    <div class="sec-title">Receipt Preview</div>
+    <button class="btn btn-outline btn-sm" onclick="genPreview()">Refresh</button>
+  </div>
+  <div class="receipt-wrap">
+    <div class="receipt-text" id="receipt-out"></div>
+  </div>
+  <div style="display:flex;gap:10px">
+    <button class="btn btn-pdf" style="flex:1" onclick="downloadPDF()">⬇ Download Invoice PDF</button>
+    <button class="btn btn-print" style="flex:1;justify-content:center;padding:12px;font-size:14px" onclick="printReceipt()">🖨 Print to SW40</button>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// PRODUCT CATALOGUE  (stored in localStorage)
+// ─────────────────────────────────────────────
+const DEFAULT_PRODUCTS = [
+  { id:1, name:'SAMAPOSHA 200G-MRP185.00',  unit:'PKT', rate:166.50 },
+  { id:2, name:'MILO 400G-MRP550.00',        unit:'TIN', rate:495.00 },
+  { id:3, name:'ANCHOR MILK PWD 400G',        unit:'PKT', rate:620.00 },
+  { id:4, name:'MALIBAN BISCUIT 200G',        unit:'PKT', rate:98.00  },
+  { id:5, name:'RAABU POWDER 1KG',            unit:'PKT', rate:210.00 },
+  { id:6, name:'COCONUT OIL 1L',              unit:'BTL', rate:480.00 },
+  { id:7, name:'SUNFLOWER OIL 1L',            unit:'BTL', rate:395.00 },
+  { id:8, name:'SUGAR 1KG',                   unit:'KG',  rate:190.00 },
+  { id:9, name:'RICE FLOUR 1KG',              unit:'PKT', rate:155.00 },
+  { id:10,name:'DHAL 500G',                   unit:'PKT', rate:175.00 },
+];
+
+function loadProducts() {
+  const saved = localStorage.getItem('sinha_products');
+  return saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+}
+function saveProducts(prods) { localStorage.setItem('sinha_products', JSON.stringify(prods)); }
+
+let products = loadProducts();
+let invoiceItems = [
+  { productId:1, desc:'SAMAPOSHA 200G-MRP185.00', unit:'PKT', qty:6, rate:166.50 }
+];
+let nextId = Math.max(...products.map(p=>p.id), 0) + 1;
+
+// ─────────────────────────────────────────────
+// PANEL SWITCHING
+// ─────────────────────────────────────────────
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.querySelectorAll('.nav-tab')[['invoice','catalogue','preview'].indexOf(name)].classList.add('active');
+  if (name === 'catalogue') renderCatalogue();
+  if (name === 'preview') genPreview();
+}
+
+// ─────────────────────────────────────────────
+// CATALOGUE RENDER
+// ─────────────────────────────────────────────
+function renderCatalogue() {
+  const tbody = document.getElementById('cat-body');
+  tbody.innerHTML = '';
+  products.forEach((p, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-family:var(--mono);font-size:11px;color:var(--ink3)">${i+1}</td>
+      <td><input type="text" value="${esc(p.name)}" style="width:100%;font-family:var(--mono)" onchange="editProduct(${p.id},'name',this.value)"></td>
+      <td><input type="text" value="${esc(p.unit)}" style="width:62px;text-align:center" onchange="editProduct(${p.id},'unit',this.value)"></td>
+      <td><input type="number" value="${p.rate.toFixed(2)}" style="width:90px;text-align:right;font-family:var(--mono)" step="0.01" onchange="editProduct(${p.id},'rate',parseFloat(this.value)||0)"></td>
+      <td><button class="btn-ghost btn" style="padding:4px 8px;color:#ccc" onclick="deleteProduct(${p.id})">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('cat-count').textContent = products.length + ' items';
+}
+
+function editProduct(id, field, val) {
+  const p = products.find(x => x.id === id);
+  if (p) { p[field] = val; saveProducts(products); }
+}
+
+function deleteProduct(id) {
+  if (!confirm('Remove this product?')) return;
+  products = products.filter(p => p.id !== id);
+  saveProducts(products);
+  renderCatalogue();
+}
+
+function addProduct() {
+  const name = document.getElementById('new-name').value.trim().toUpperCase();
+  const unit = document.getElementById('new-unit').value.trim().toUpperCase() || 'PCS';
+  const rate = parseFloat(document.getElementById('new-rate').value) || 0;
+  if (!name) { alert('Please enter a product name.'); return; }
+  products.push({ id: nextId++, name, unit, rate });
+  saveProducts(products);
+  document.getElementById('new-name').value = '';
+  document.getElementById('new-unit').value = '';
+  document.getElementById('new-rate').value = '';
+  renderCatalogue();
+}
+
+// ─────────────────────────────────────────────
+// PRODUCT PICKER (in invoice)
+// ─────────────────────────────────────────────
+function openPicker() {
+  const dd = document.getElementById('picker-dropdown');
+  dd.classList.toggle('open');
+  if (dd.classList.contains('open')) {
+    document.getElementById('picker-search').value = '';
+    renderPickerList('');
+    document.getElementById('picker-search').focus();
+  }
+}
+
+function renderPickerList(filter) {
+  const list = document.getElementById('picker-list');
+  list.innerHTML = '';
+  const fl = filter.toLowerCase();
+  products.filter(p => p.name.toLowerCase().includes(fl)).forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'picker-item';
+    div.innerHTML = `<span class="picker-item-name">${p.name}</span>
+      <span class="picker-item-meta">${p.unit} · Rs.${p.rate.toFixed(2)}</span>`;
+    div.onclick = () => { addInvoiceItem(p); document.getElementById('picker-dropdown').classList.remove('open'); };
+    list.appendChild(div);
+  });
+  if (!list.children.length) {
+    list.innerHTML = '<div style="padding:12px;font-size:13px;color:#aaa;text-align:center">No products found</div>';
+  }
+}
+
+function filterPicker(val) { renderPickerList(val); }
+
+document.addEventListener('click', e => {
+  if (!document.getElementById('picker-wrap').contains(e.target) &&
+      !e.target.closest('.btn-outline')) {
+    document.getElementById('picker-dropdown').classList.remove('open');
+  }
+});
+
+// ─────────────────────────────────────────────
+// INVOICE ITEMS
+// ─────────────────────────────────────────────
+function addInvoiceItem(product) {
+  invoiceItems.push({ productId: product.id, desc: product.name, unit: product.unit, qty: 1, rate: product.rate });
+  renderInvoiceItems();
+}
+
+function renderInvoiceItems() {
+  const container = document.getElementById('invoice-items');
+  container.innerHTML = '';
+  if (invoiceItems.length === 0) {
+    container.innerHTML = '<div style="padding:16px;text-align:center;font-size:13px;color:#bbb;border:1px solid #eee;border-top:none">No items. Click "Add Item" to begin.</div>';
+    updateTotal(); return;
+  }
+  invoiceItems.forEach((it, i) => {
+    const amt = (it.qty * it.rate).toFixed(2);
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML = `
+      <span class="item-num">${i+1}</span>
+      <span class="item-desc" title="${esc(it.desc)}">${esc(it.desc)}</span>
+      <span style="font-size:11px;font-family:var(--mono);color:var(--ink3)">${esc(it.unit)}</span>
+      <input type="number" value="${it.qty}" min="0" step="1"
+        onchange="invoiceItems[${i}].qty=Math.max(0,+this.value);renderInvoiceItems()">
+      <input type="number" value="${it.rate.toFixed(2)}" min="0" step="0.01"
+        onchange="invoiceItems[${i}].rate=Math.max(0,+this.value);renderInvoiceItems()">
+      <span class="item-amt">Rs.${amt}</span>
+      <button class="del-item" onclick="invoiceItems.splice(${i},1);renderInvoiceItems()">×</button>
+    `;
+    container.appendChild(row);
+  });
+  updateTotal();
+}
+
+function updateTotal() {
+  const net = invoiceItems.reduce((s, it) => s + it.qty * it.rate, 0);
+  document.getElementById('grand-total').textContent = net.toFixed(2);
+}
+
+// ─────────────────────────────────────────────
+// RECEIPT TEXT GENERATION
+// ─────────────────────────────────────────────
+function genPreview() {
+  document.getElementById('receipt-out').textContent = buildReceiptText();
+}
+
+function buildReceiptText() {
+  const W = 48;
+  const bizName  = v('biz-name');
+  const bizAddr  = v('biz-addr');
+  const bizPhone = v('biz-phone');
+  const serial   = v('serial-no');
+  const custName = v('cust-name').toUpperCase();
+  const rawDate  = v('bill-date');
+  const billDate = rawDate.replace(/-/g, '/');
+  const net = invoiceItems.reduce((s, it) => s + it.qty * it.rate, 0);
+
+  let r = '';
+  r += cen(bizName, W) + '\n';
+  r += cen(bizAddr, W) + '\n';
+  r += cen(bizPhone, W) + '\n';
+  r += '.'.repeat(W) + '\n';
+  r += `BILL DATE - ${billDate}\n`;
+  r += `SERIAL NO - ${serial}\n`;
+  r += '.'.repeat(W) + '\n';
+  r += `CUSTOMER - ${custName}\n`;
+  r += '*'.repeat(W) + '\n';
+  r += rpad('#',3) + lpad('DESCRIPTION',20) + ' ' + lpad('UNIT',5) + lpad('QTY',4) + lpad('RATE',8) + lpad('AMOUNT',8) + '\n';
+  r += '*'.repeat(W) + '\n';
+  invoiceItems.forEach((it, i) => {
+    const amt = (it.qty * it.rate).toFixed(2);
+    const desc = it.desc.length > 20 ? it.desc.substring(0, 20) : it.desc;
+    r += rpad(String(i+1), 3) + rpad(desc, 20) + ' ' + lpad(it.unit, 5) + lpad(String(it.qty), 4) + lpad(it.rate.toFixed(2), 8) + lpad(amt, 8) + '\n';
+  });
+  r += '-'.repeat(W) + '\n';
+  r += `NET (Rs.) - ${net.toFixed(2)}\n`;
+  r += '-'.repeat(W) + '\n';
+  r += 'Customer Sig.-\n';
+  r += '.'.repeat(W) + '\n';
+  return r;
+}
+
+function cen(s, w) { const p = Math.max(0, Math.floor((w - s.length) / 2)); return ' '.repeat(p) + s; }
+function lpad(s, n) { s = String(s); return s.length >= n ? s.slice(-n) : ' '.repeat(n - s.length) + s; }
+function rpad(s, n) { s = String(s); return s.length >= n ? s.slice(0, n) : s + ' '.repeat(n - s.length); }
+function v(id) { return document.getElementById(id).value.trim(); }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ═════════════════════════════════════════════
+//  BLUETOOTH PRINTING — WOOSIM PORTI-SW40
+// ═════════════════════════════════════════════
+//
+//  The SW40 is a *Bluetooth Classic* (v2.1+EDR SPP) printer, so the
+//  browser's Web Bluetooth API (BLE-only) cannot see it. Two paths work:
+//
+//  1. LAPTOP / PC (Chrome or Edge):
+//     Pair the printer in Windows/macOS Bluetooth settings first
+//     (PIN is usually 0000). The OS creates a serial (COM) port.
+//     "Connect" below opens that port with the Web Serial API at
+//     57600 baud / 8-N-1 (fixed in the printer firmware) and sends
+//     raw ESC/POS bytes.
+//
+//  2. ANDROID PHONE (Chrome):
+//     Android browsers cannot open classic-Bluetooth serial links.
+//     Install the free "RawBT" app from the Play Store, pair the
+//     SW40 inside RawBT, then the Print button hands the ESC/POS
+//     data to RawBT via a rawbt: link and it prints.
+//
+//  80mm paper → 48 characters per line in Font A, which matches
+//  the receipt layout above exactly.
+// ─────────────────────────────────────────────
+
+const ESC = 0x1B, GS = 0x1D, LF = 0x0A;
+let serialPort = null;
+let serialWriter = null;
+let bleDevice = null;
+let bleChar = null;          // writable BLE characteristic
+let bleUseNoResponse = false;
+
+const IS_ANDROID = /Android/i.test(navigator.userAgent);
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const HAS_SERIAL = 'serial' in navigator;
+const HAS_BLE = 'bluetooth' in navigator;
+const HAS_SHARE = 'share' in navigator;
+
+// Known write services/characteristics used by BLE receipt printers.
+// (The SW40 itself is Bluetooth Classic; these cover dual-mode units,
+// newer firmware, and other BLE printers so the app keeps working.)
+const BLE_PRINTER_SERVICES = [
+  '000018f0-0000-1000-8000-00805f9b34fb', // generic printer service → char 2af1
+  '49535343-fe7d-4ae5-8fa9-9fafd205e455', // ISSC/Microchip transparent UART
+  '6e400001-b5a3-f393-e0a9-e50e24dcca9e', // Nordic UART service
+  'e7810a71-73ae-499d-8c15-faa9aef0c3f2', // common Chinese printer modules
+  '0000ff00-0000-1000-8000-00805f9b34fb', // FF00 vendor service
+];
+
+// ---- Build the ESC/POS byte stream from the receipt ----
+function buildEscPosBytes(testMode) {
+  const bytes = [];
+  const push = (...b) => bytes.push(...b);
+  const pushText = (s) => { for (const ch of s) { const c = ch.charCodeAt(0); push(c <= 0xFF ? c : 0x3F); } };
+
+  // Initialise printer
+  push(ESC, 0x40);                 // ESC @  — reset
+  push(ESC, 0x21, 0x00);           // ESC !  — Font A (12x24 → 48 cols on 80mm)
+
+  const text = testMode
+    ? centeredTest()
+    : buildReceiptText();
+
+  const lines = text.split('\n');
+  const bizName = v('biz-name');
+
+  lines.forEach(line => {
+    // Print the business-name line emphasised (bold), same width
+    const isNameLine = !testMode && line.trim() === bizName.trim() && bizName.length > 0;
+    if (isNameLine) push(ESC, 0x45, 0x01);      // ESC E 1 — bold on
+    pushText(line);
+    push(LF);
+    if (isNameLine) push(ESC, 0x45, 0x00);      // ESC E 0 — bold off
+  });
+
+  // Feed paper past the tear edge
+  push(LF, LF, LF, LF);
+  return new Uint8Array(bytes);
+}
+
+function centeredTest() {
+  const W = 48;
+  return cen('*** SW40 TEST PRINT ***', W) + '\n' +
+         cen('Sinha Distributor', W) + '\n' +
+         cen(new Date().toLocaleString(), W) + '\n' +
+         '-'.repeat(W) + '\n' +
+         '48-column check:\n' +
+         '123456789012345678901234567890123456789012345678\n' +
+         '-'.repeat(W) + '\n';
+}
+
+// ---- Path 1: Web Serial (laptop/PC with paired printer) ----
+async function connectSerial() {
+  if (!HAS_SERIAL) {
+    setStatus('err', 'Web Serial not available in this browser. On a laptop, use Chrome or Edge. On Android, use RawBT (see note below).');
+    return;
+  }
+  try {
+    setStatus('busy', 'Choose the printer\'s COM port in the popup...');
+    serialPort = await navigator.serial.requestPort();
+    // SW40 firmware is fixed at 57600 bps, 8 data bits, no parity, 1 stop bit
+    await serialPort.open({ baudRate: 57600, dataBits: 8, parity: 'none', stopBits: 1, flowControl: 'none' });
+    serialWriter = serialPort.writable.getWriter();
+    serialPort.addEventListener('disconnect', () => { serialWriter = null; serialPort = null; setConnected(false); });
+    setConnected(true);
+    setStatus('ok', 'Printer port open (57600 baud). Ready to print.');
+  } catch (err) {
+    serialPort = null; serialWriter = null;
+    setConnected(false);
+    if (err.name === 'NotFoundError') setStatus('err', 'No port selected.');
+    else setStatus('err', 'Could not open port: ' + err.message);
+  }
+}
+
+async function sendSerial(data) {
+  // Send in small chunks with a short pause so the printer's buffer
+  // is never overrun (the SW40 uses XON/XOFF, which Web Serial
+  // doesn't support, so we pace the data instead).
+  const CHUNK = 256;
+  for (let i = 0; i < data.length; i += CHUNK) {
+    await serialWriter.write(data.slice(i, i + CHUNK));
+    await new Promise(r => setTimeout(r, 60));
+  }
+}
+
+// ---- Path 2: Web Bluetooth / BLE ----
+// Android: works directly in Chrome.
+// iPhone: works inside the free "Bluefy" browser (Safari has no Web Bluetooth).
+// Note: only finds the printer if it supports BLE (dual-mode units).
+async function connectBLE() {
+  if (!HAS_BLE) {
+    if (IS_IOS) setStatus('err', 'Safari has no Web Bluetooth. Install the free "Bluefy" browser from the App Store and open this page inside it, then tap Connect again.');
+    else setStatus('err', 'Web Bluetooth is not available in this browser. Use Chrome.');
+    return;
+  }
+  try {
+    setStatus('busy', 'Scanning... pick the printer in the popup. If it never appears, the printer is Bluetooth-Classic-only — use the RawBT method (Android) or Share (iPhone).');
+    bleDevice = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: BLE_PRINTER_SERVICES,
+    });
+    bleDevice.addEventListener('gattserverdisconnected', () => {
+      bleChar = null; setConnected(false);
+      setStatus('err', 'Printer disconnected.');
+    });
+    const server = await bleDevice.gatt.connect();
+
+    // Hunt for a writable characteristic across known services
+    bleChar = null;
+    for (const svcUuid of BLE_PRINTER_SERVICES) {
+      try {
+        const svc = await server.getPrimaryService(svcUuid);
+        const chars = await svc.getCharacteristics();
+        for (const c of chars) {
+          if (c.properties.write || c.properties.writeWithoutResponse) {
+            bleChar = c;
+            bleUseNoResponse = !!c.properties.writeWithoutResponse;
+            break;
+          }
+        }
+      } catch (e) { /* service not present on this device — keep looking */ }
+      if (bleChar) break;
+    }
+
+    if (!bleChar) {
+      bleDevice.gatt.disconnect();
+      setStatus('err', 'Connected, but no printer write channel found on this device. It may be Bluetooth-Classic-only.');
+      return;
+    }
+    setConnected(true, 'BLE');
+    setStatus('ok', 'Bluetooth connected. Ready to print.');
+  } catch (err) {
+    bleChar = null;
+    if (err.name === 'NotFoundError') setStatus('err', 'No device selected.');
+    else setStatus('err', 'Bluetooth error: ' + err.message);
+  }
+}
+
+async function sendBLE(data) {
+  // BLE packets are small — send ~100-byte chunks with a pause
+  const CHUNK = 100;
+  for (let i = 0; i < data.length; i += CHUNK) {
+    const part = data.slice(i, i + CHUNK);
+    if (bleUseNoResponse) await bleChar.writeValueWithoutResponse(part);
+    else await bleChar.writeValue(part);
+    await new Promise(r => setTimeout(r, 30));
+  }
+}
+
+// ---- Path 3: RawBT deep link (Android) ----
+function sendRawBT(data) {
+  let bin = '';
+  data.forEach(b => bin += String.fromCharCode(b));
+  const b64 = btoa(bin);
+  // RawBT accepts base64-encoded ESC/POS via its URL scheme
+  window.location.href = 'rawbt:base64,' + b64;
+}
+
+// ---- Main print entry point ----
+async function printReceipt(testMode) {
+  if (!testMode && invoiceItems.length === 0) {
+    setStatus('err', 'No items on the invoice.');
+    return;
+  }
+  const data = buildEscPosBytes(!!testMode);
+
+  // 1) Open serial port (laptop/PC)
+  if (serialWriter) {
+    try {
+      setStatus('busy', 'Printing...');
+      await sendSerial(data);
+      setStatus('ok', testMode ? 'Test sent to printer.' : 'Invoice sent to printer.');
+    } catch (err) {
+      setStatus('err', 'Print failed: ' + err.message + '. Try reconnecting.');
+      try { serialWriter.releaseLock(); await serialPort.close(); } catch(e) {}
+      serialWriter = null; serialPort = null;
+      setConnected(false);
+    }
+    return;
+  }
+
+  // 2) Open BLE connection (Android Chrome / iPhone Bluefy)
+  if (bleChar) {
+    try {
+      setStatus('busy', 'Printing over Bluetooth...');
+      await sendBLE(data);
+      setStatus('ok', testMode ? 'Test sent to printer.' : 'Invoice sent to printer.');
+    } catch (err) {
+      setStatus('err', 'Bluetooth print failed: ' + err.message + '. Try reconnecting.');
+      bleChar = null;
+      setConnected(false);
+    }
+    return;
+  }
+
+  // 3) No live connection — pick the right fallback per platform
+  if (IS_ANDROID) {
+    setStatus('busy', 'Sending to RawBT... If nothing happens, install the free RawBT app from the Play Store and pair the SW40 inside it.');
+    sendRawBT(data);
+    setTimeout(() => setStatus('ok', 'Handed to RawBT. Check the printer.'), 1500);
+  } else if (IS_IOS) {
+    setStatus('err', 'Not connected. Try "Connect (Bluetooth)" inside the Bluefy browser — or use "Share Bill (PDF)" to print through another app.');
+  } else if (HAS_SERIAL) {
+    setStatus('err', 'Not connected. Click "Connect (Laptop / PC)" first and choose the printer\'s COM port.');
+  } else {
+    setStatus('err', 'This browser cannot reach the printer. Use Chrome/Edge on a laptop, Chrome + RawBT on Android, or Bluefy on iPhone.');
+  }
+}
+
+// ---- UI helpers ----
+function setStatus(kind, msg) {
+  const el = document.getElementById('print-status');
+  el.className = 'print-status show ' + kind;
+  el.textContent = msg;
+}
+
+function setConnected(on, mode) {
+  document.getElementById('conn-dot').className = 'conn-dot' + (on ? ' on' : '');
+  document.getElementById('conn-label').textContent = on ? ('Connected' + (mode ? ' (' + mode + ')' : '')) : 'Not connected';
+  const sBtn = document.getElementById('btn-serial-connect');
+  const bBtn = document.getElementById('btn-ble-connect');
+  if (on && mode === 'BLE') bBtn.textContent = '✓ Connected';
+  else bBtn.textContent = '🔗 Connect (Bluetooth)';
+  if (on && mode !== 'BLE') sBtn.textContent = '✓ Connected';
+  else sBtn.textContent = '🔗 Connect (Laptop / PC)';
+}
+
+function initPrintHelp() {
+  const help = document.getElementById('print-help');
+  const sBtn = document.getElementById('btn-serial-connect');
+  const bBtn = document.getElementById('btn-ble-connect');
+  const shBtn = document.getElementById('btn-share');
+  if (!HAS_SHARE) shBtn.textContent = '⬇ Save Bill (PDF)';
+
+  if (IS_ANDROID) {
+    sBtn.style.display = 'none';   // no Web Serial on Android
+    help.innerHTML =
+      '<b>Android — easiest way (RawBT):</b> ' +
+      '1) Install the free <b>RawBT</b> app from the Play Store. ' +
+      '2) Pair the printer in your phone\'s Bluetooth settings (PIN <code>0000</code>). ' +
+      '3) In RawBT → Settings → Connection → <b>Bluetooth</b> → select <b>Woosim PORTI-SW40</b>. ' +
+      'Then just tap <b>Print Receipt</b>. ' +
+      '<br><b>Alternative:</b> tap <b>Connect (Bluetooth)</b> — this works only if your printer unit supports BLE; if it never appears in the scan list, use RawBT.';
+  } else if (IS_IOS) {
+    sBtn.style.display = 'none';   // no Web Serial on iOS
+    help.innerHTML =
+      '<b>iPhone / iPad:</b> Apple blocks web pages (and most apps) from classic Bluetooth printers, so there are two options: ' +
+      '<br>1) <b>Bluetooth (works only if your printer unit supports BLE):</b> install the free <b>Bluefy</b> browser from the App Store, open this page in it, and tap <b>Connect (Bluetooth)</b>. If the printer never appears in the scan, your unit is Bluetooth-Classic-only and cannot connect to an iPhone directly. ' +
+      '<br>2) <b>Share Bill (PDF):</b> always works — sends the bill to WhatsApp, AirPrint, or any printing app. Tip: keep an Android phone or laptop as the printing device and use the iPhone for sharing bills.';
+  } else if (HAS_SERIAL) {
+    help.innerHTML =
+      '<b>Laptop setup (one time):</b> ' +
+      '1) Turn the printer on and pair it in Windows/macOS Bluetooth settings (PIN <code>0000</code>). ' +
+      '2) Click <b>Connect (Laptop / PC)</b> and pick the printer\'s outgoing COM port ' +
+      '(on Windows check <i>Bluetooth settings → More Bluetooth options → COM Ports</i> if two appear — choose the <b>Outgoing</b> one). ' +
+      'The port opens at 57600 baud, which is fixed in the SW40 firmware.';
+  } else {
+    help.innerHTML =
+      '<b>Note:</b> this browser has no way to reach the printer. ' +
+      'Use <b>Chrome or Edge on a laptop</b>, <b>Chrome + RawBT on Android</b>, or <b>Bluefy on iPhone</b> (BLE units only). ' +
+      'You can still use <b>Share Bill (PDF)</b>.';
+  }
+}
+
+// ---- Share / save the bill as a PDF (works on iOS & Android) ----
+async function sharePDF() {
+  try {
+    const doc = buildPDFDoc();
+    const serial = v('serial-no');
+    const filename = `invoice_${serial}.pdf`;
+    const blob = doc.output('blob');
+    const file = new File([blob], filename, { type: 'application/pdf' });
+
+    if (HAS_SHARE && navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'Invoice ' + serial });
+      setStatus('ok', 'Bill shared.');
+    } else {
+      doc.save(filename);   // fallback: plain download
+      setStatus('ok', 'Bill saved as PDF.');
+    }
+  } catch (err) {
+    if (err.name !== 'AbortError') setStatus('err', 'Share failed: ' + err.message);
+  }
+}
+
+// ─────────────────────────────────────────────
+// PDF DOWNLOAD  (uses jsPDF)
+// ─────────────────────────────────────────────
+function buildPDFDoc() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: [80, 200], orientation: 'portrait' });
+
+  const bizName  = v('biz-name');
+  const bizAddr  = v('biz-addr');
+  const bizPhone = v('biz-phone');
+  const serial   = v('serial-no');
+  const custName = v('cust-name').toUpperCase();
+  const rawDate  = v('bill-date');
+  const billDate = rawDate.replace(/-/g, '/');
+  const net = invoiceItems.reduce((s, it) => s + it.qty * it.rate, 0);
+
+  const W = 72; // usable mm
+  let y = 6;
+  const LH = 4.2;
+
+  function line(txt, size, bold, align) {
+    doc.setFontSize(size || 8);
+    doc.setFont('courier', bold ? 'bold' : 'normal');
+    if (align === 'center') {
+      doc.text(txt, 40, y, { align: 'center' });
+    } else if (align === 'right') {
+      doc.text(txt, 77, y, { align: 'right' });
+    } else {
+      doc.text(txt, 4, y);
+    }
+    y += LH;
+  }
+
+  function rule(char) {
+    line(char.repeat(46), 7);
+  }
+
+  function nl(n) { y += (n || 1) * 2; }
+
+  // Header
+  line(bizName, 9, true, 'center');
+  nl(0.5);
+
+  // wrap long address
+  const addrParts = bizAddr.split(',');
+  let addrLine = '';
+  addrParts.forEach((part, i) => {
+    const candidate = addrLine + (i > 0 ? ',' : '') + part;
+    if (candidate.length > 34 && addrLine) {
+      line(addrLine.trim(), 7, false, 'center');
+      addrLine = part;
+    } else { addrLine = candidate; }
+  });
+  if (addrLine) line(addrLine.trim(), 7, false, 'center');
+
+  line(bizPhone, 7, false, 'center');
+  nl(0.3);
+  rule('.');
+  line('BILL DATE - ' + billDate, 7);
+  line('SERIAL NO - ' + serial, 7);
+  rule('.');
+  line('CUSTOMER - ' + custName, 7);
+  rule('*');
+
+  // column header
+  doc.setFontSize(7);
+  doc.setFont('courier', 'bold');
+  doc.text('#', 4, y);
+  doc.text('DESCRIPTION', 9, y);
+  doc.text('U', 49, y);
+  doc.text('Q', 54, y);
+  doc.text('RATE', 59, y);
+  doc.text('AMT', 70, y, {align:'right'});
+  y += LH;
+  rule('*');
+
+  // items
+  doc.setFont('courier', 'normal');
+  invoiceItems.forEach((it, i) => {
+    const amt = (it.qty * it.rate).toFixed(2);
+    const descTrunc = it.desc.length > 20 ? it.desc.substring(0, 20) : it.desc;
+    doc.setFontSize(7);
+    doc.text(String(i+1), 4, y);
+    doc.text(descTrunc, 9, y);
+    doc.text(it.unit.substring(0,4), 49, y);
+    doc.text(String(it.qty), 57, y, {align:'right'});
+    doc.text(it.rate.toFixed(2), 66, y, {align:'right'});
+    doc.text(amt, 76, y, {align:'right'});
+    y += LH;
+
+    // second line if description is long
+    if (it.desc.length > 20) {
+      doc.text(it.desc.substring(20, 40), 9, y);
+      y += LH;
+    }
+  });
+
+  rule('-');
+  doc.setFont('courier', 'bold');
+  doc.setFontSize(8.5);
+  doc.text('NET (Rs.)', 4, y);
+  doc.text(net.toFixed(2), 76, y, {align:'right'});
+  y += LH * 1.4;
+  doc.setFont('courier', 'normal');
+  doc.setFontSize(7);
+  rule('-');
+  line('Customer Sig.-', 7);
+  nl();
+  rule('.');
+
+  return doc;
+}
+
+function downloadPDF() {
+  const doc = buildPDFDoc();
+  const serial = v('serial-no');
+  const billDate = v('bill-date').replace(/-/g, '/');
+  const filename = `invoice_${serial}_${billDate.replace(/\//g,'-')}.pdf`;
+  doc.save(filename);
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+renderInvoiceItems();
+renderCatalogue();
+initPrintHelp();
+</script>
+</body>
+</html>
