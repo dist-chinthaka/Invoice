@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Sinha Distributor — Invoice</title>
+<title>CA Distributor — Invoice</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
@@ -353,7 +353,7 @@
 <body>
 
 <div class="topbar">
-  <div class="topbar-brand">SINHA <span>///</span> INVOICE</div>
+  <div class="topbar-brand">CA <span>///</span> INVOICE</div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showPanel('invoice')">Invoice</button>
     <button class="nav-tab" onclick="showPanel('catalogue')">Products</button>
@@ -367,7 +367,7 @@
   <div class="card">
     <div class="sec-title" style="margin-bottom:14px">Business Details</div>
     <div class="field-grid one">
-      <div class="field"><label>Business Name</label><input type="text" id="biz-name" value="SINHA DISTRIBUTOR"></div>
+      <div class="field"><label>Business Name</label><input type="text" id="biz-name" value="CA DISTRIBUTOR"></div>
     </div>
     <div class="field-grid one">
       <div class="field"><label>Address</label><input type="text" id="biz-addr" value="NO. 314, PUTTLAM ROAD, GALAPITIYAGAMA, NIKAWERATIYA."></div>
@@ -498,10 +498,10 @@ const DEFAULT_PRODUCTS = [
 ];
 
 function loadProducts() {
-  const saved = localStorage.getItem('sinha_products');
+  const saved = localStorage.getItem('CA_products');
   return saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
 }
-function saveProducts(prods) { localStorage.setItem('sinha_products', JSON.stringify(prods)); }
+function saveProducts(prods) { localStorage.setItem('CA_products', JSON.stringify(prods)); }
 
 let products = loadProducts();
 let invoiceItems = [
@@ -777,7 +777,7 @@ function buildEscPosBytes(testMode) {
 function centeredTest() {
   const W = 48;
   return cen('*** SW40 TEST PRINT ***', W) + '\n' +
-         cen('Sinha Distributor', W) + '\n' +
+         cen('CA Distributor', W) + '\n' +
          cen(new Date().toLocaleString(), W) + '\n' +
          '-'.repeat(W) + '\n' +
          '48-column check:\n' +
