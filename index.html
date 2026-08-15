@@ -382,7 +382,7 @@
     <div class="sec-title" style="margin-bottom:14px">Customer & Date</div>
     <div class="field-grid two">
       <div class="field"><label>Customer Name / Address</label><input type="text" id="cust-name" value="CASH"></div>
-      <div class="field"><label>Bill Date</label><input type="date" id="bill-date" value="2026-05-02"></div>
+      <div class="field"><label>Bill Date</label><input type="date" id="bill-date" ></div>
     </div>
   </div>
 
@@ -563,6 +563,26 @@ function addProduct() {
   document.getElementById('new-rate').value = '';
   renderCatalogue();
 }
+
+
+//--------------------------------------
+//System date
+//--------------------------------------
+
+ // Get current system date
+        const today = new Date();
+        
+        // Offset correction to get local YYYY-MM-DD string
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const dd = String(today.getDate()).padStart(2, '0');
+        
+        const formattedDate = `${yyyy}-${mm}-${dd}`;
+        
+        // Inject into HTML date box
+        document.getElementById('bill-date').value = formattedDate;
+      
+     
 
 // ─────────────────────────────────────────────
 // PRODUCT PICKER (in invoice)
@@ -790,6 +810,7 @@ function centeredTest() {
          '-'.repeat(W) + '\n' +
          '48-column check:\n' +
          '123456789012345678901234567890123456789012345678\n' +
+		 'Test Pased...\n' +
          '-'.repeat(W) + '\n';
 }
 
