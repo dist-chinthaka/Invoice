@@ -216,7 +216,7 @@
   /* ── INVOICE ITEMS ── */
   .items-header {
     display: grid;
-    grid-template-columns: 30px 1fr 70px 55px 75px 75px 32px;
+    grid-template-columns: 1fr 75px 75px 32px;
     gap: 6px;
     padding: 6px 8px;
     background: #fafafa;
@@ -401,7 +401,7 @@
     </div>
 
     <div class="items-header">
-      <span></span><span>Description</span><span></span><span>Qty</span><span>Rate</span><span>Amount</span><span></span>
+     <span>Description</span> <span>Qty</span><span>Rate</span><span>Amount</span><span></span>
     </div>
     <div id="invoice-items"></div>
 
@@ -623,10 +623,10 @@ function renderInvoiceItems() {
     const row = document.createElement('div');
     row.className = 'item-row';
     row.innerHTML = `
-    <span></span>
+    
 	<!--span class="item-num">${i+1}</span-->
       <span class="item-desc" title="${esc(it.desc)}">${esc(it.desc)}</span>
-     <span></span>
+   
 	 <!--span style="font-size:11px;font-family:var(--mono);color:var(--ink3)">${esc(it.unit)}</span-->
       <input type="number" value="${it.qty}" min="0" step="1"
         onchange="invoiceItems[${i}].qty=Math.max(0,+this.value);renderInvoiceItems()">
