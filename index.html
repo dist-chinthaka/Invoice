@@ -367,13 +367,13 @@
   <div class="card">
     <div class="sec-title" style="margin-bottom:14px">Business Details</div>
     <div class="field-grid one">
-      <div class="field"><label>Business Name</label><input type="text" id="biz-name" value="CA DISTRIBUTOR"></div>
+      <div class="field"><label>Business Name</label><input type="text" id="biz-name" value="CA DISTRIBUTOR" disabled></div>
     </div>
     <div class="field-grid one">
-      <div class="field"><label>Address</label><input type="text" id="biz-addr" value="PUTTLAM ROAD, BUDUMUTHTHAWA, NIKAWERATIYA."></div>
+      <div class="field"><label>Address</label><input type="text" id="biz-addr" value="PUTTLAM ROAD, BUDUMUTHTHAWA, NIKAWERATIYA." disabled></div>
     </div>
     <div class="field-grid two">
-      <div class="field"><label>Phone</label><input type="text" id="biz-phone" value="0743437777"></div>
+      <div class="field"><label>Phone</label><input type="text" id="biz-phone" value="0743437777" disabled></div>
       <div class="field"><label>Serial No</label><input type="text" id="serial-no" value="26001"></div>
     </div>
   </div>
@@ -694,25 +694,39 @@ function buildReceiptText() {
   r += cen(bizAddr, W) + '\n';
   r += cen(bizPhone, W) + '\n\n';
   r += '-'.repeat(W) + '\n';
+  
+  r += cen('INVOICE', W) + '\n';
+  r += '-'.repeat(W) + '\n';
   r += `INVOICE DATE - ${billDate}\n`;
-  r += `INVOICE NO   - ${serial}\n`;
- // r += '-'.repeat(W) + '\n';
-  r += `CUSTOMER     - ${custName}\n`;
+  r += `INVOICE NO   - ${serial}\n\n`;
+  
+  r += '-'.repeat(W) + '\n';
+  r += cen('CUSTOMER DETAILS', W) + '\n';
+  r += '-'.repeat(W) + '\n';
+  r += `NAME - ${custName}\n\n`;
+  r += '-'.repeat(W) + '\n';
+  
+  r += cen('PRODUCT DETAILS', W) + '\n';
   r += '-'.repeat(W) + '\n\n';
+  
   r +=  lpad('PRODUCT NAME',12) + lpad('QTY',15) + lpad('RATE',8) + lpad('VALUE',12) + '\n';
-  r += '-'.repeat(W) + '\n\n';
+  r += '-'.repeat(W) + '\n';
   invoiceItems.forEach((it, i) => {
     const amt = (it.qty * it.rate).toFixed(2);
     const desc = it.desc.length > 22 ? it.desc.substring(0, 22) : it.desc;
-    r += rpad(desc, 22) + ' ' +  lpad(String(it.qty), 3) + lpad(it.rate.toFixed(2), 10) + lpad(amt, 12) + '\n';
+    r += rpad(desc, 22) + ' ' +  lpad(String(it.qty), 3) + lpad(it.rate.toFixed(2), 10) + lpad(amt, 12) + '\n\n';
   });
+  
   r += '-'.repeat(W) + '\n\n'; 
   r += `${label}${paddedValue}\n`;
   
   //r += `NET TOTAL (Rs.) ${net.toFixed(2)}\n`;
-  r += '-'.repeat(W) + '\n\n\n';
-  r += 'Customer Sig.-\n';
-  r += '-'.repeat(W);
+   r += '-'.repeat(W) + '\n'; 
+  r += '-'.repeat(W) + '\n\n\n\n\n';
+  r += 'Customer Sig.& Stamp -\n\n';
+  r += 'Date - 202.../...../.....\n';
+  r += '-'.repeat(W)+ '\n';
+  r += cen('Soft by MACMA System', W) + '\n\n\n';
   return r;
 }
 
