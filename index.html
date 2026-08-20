@@ -692,9 +692,13 @@ function buildReceiptText() {
   r +=  '\n';
   r += cen(bizName, W) + '\n';
   r += cen(bizAddr, W) + '\n';
-  r += cen(bizPhone, W) + '\n\n';
+  r += cen(bizPhone, W) + '\n';
+  r += cen('dist.chinthaka@gmail.com', W) + '\n';
   r += '-'.repeat(W) + '\n';
+  r += 'DISTRIBUTOR - A.M.Chinthaka Amarasinghe\n\n';
   
+  
+  r += '-'.repeat(W) + '\n';
   r += cen('INVOICE', W) + '\n';
   r += '-'.repeat(W) + '\n';
   r += `INVOICE DATE - ${billDate}\n`;
@@ -706,7 +710,7 @@ function buildReceiptText() {
   r += `NAME - ${custName}\n\n`;
   r += '-'.repeat(W) + '\n';
   
-  r += cen('PRODUCT DETAILS', W) + '\n';
+  r += cen('SALES', W) + '\n';
   r += '-'.repeat(W) + '\n\n';
   
   r +=  lpad('PRODUCT NAME',12) + lpad('QTY',15) + lpad('RATE',8) + lpad('VALUE',12) + '\n';
