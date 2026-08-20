@@ -373,7 +373,7 @@
       <div class="field"><label>Address</label><input type="text" id="biz-addr" value="PUTTLAM ROAD, BUDUMUTHTHAWA, NIKAWERATIYA." disabled></div>
     </div>
     <div class="field-grid two">
-      <div class="field"><label>Phone</label><input type="text" id="biz-phone" value="0743437777" disabled></div>
+      <div class="field"><label>Phone</label><input type="text" id="biz-phone" value="074-3437777" disabled></div>
       <div class="field"><label>Serial No</label><input type="text" id="serial-no" value="26001"></div>
     </div>
   </div>
@@ -692,10 +692,14 @@ function buildReceiptText() {
   r +=  '\n';
   r += cen(bizName, W) + '\n';
   r += cen(bizAddr, W) + '\n';
-  r += cen(bizPhone, W) + '\n';
   r += cen('dist.chinthaka@gmail.com', W) + '\n';
+  r += cen(bizPhone, W) + '\n';
+ 
   r += '-'.repeat(W) + '\n';
-  r += 'DISTRIBUTOR - A.M.Chinthaka Amarasinghe\n\n';
+  r += cen('DISTRIBUTOR DETAILS', W) + '\n';
+  r += '-'.repeat(W) + '\n';
+  r += 'NAME      - A.M.Chinthaka Amarasinghe \n';
+  r += 'TELEPHONE - 071-5571437 \n\n';
   
   
   r += '-'.repeat(W) + '\n';
