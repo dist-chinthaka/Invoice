@@ -485,12 +485,7 @@
 // PRODUCT CATALOGUE  (stored in localStorage)
 // ─────────────────────────────────────────────
 const DEFAULT_PRODUCTS = [
-  { id:1, name:'SUPRISE SMALL',  unit:'UNIT', rate:86.96 },
-  
-  
-  
-  
-  
+  //{ id:1, name:'SUPRISE LARGEL',  unit:'UNIT', rate:86.96 },  
   
   
 ];
@@ -503,7 +498,7 @@ function saveProducts(prods) { localStorage.setItem('CA_products', JSON.stringif
 
 let products = loadProducts();
 let invoiceItems = [
-  { productId:1, desc:'SUPRISE SMALL ', unit:'UNIT', qty:1, rate:86.96 }
+  //{ productId:1, desc:'SUPRISE LARGEL ', unit:'UNIT', qty:1, rate:86.96 }
 ];
 let nextId = Math.max(...products.map(p=>p.id), 0) + 1;
 
