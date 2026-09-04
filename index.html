@@ -406,7 +406,7 @@
     <div id="invoice-items"></div>
 
     <div class="totals-box">
-      <div class="total-line"><span class="total-label">NET TOTAL (Rs.)</span><span class="total-amount" id="grand-total">0.00</span></div>
+      <div class="total-line"><span class="total-label">NET TOTAL Rs: </span><span class="total-amount" id="grand-total">0.00</span></div>
     </div>
   </div>
 
@@ -458,7 +458,7 @@
     <div class="add-product-form" id="add-form">
       <div class="field"><label>Product Name</label><input type="text" id="new-name" placeholder="e.g. SUPRISE "></div>
       <div class="field"><label>Unit</label><input type="text" id="new-unit" placeholder="Unit"></div>
-      <div class="field"><label>Rate (Rs.)</label><input type="number" id="new-rate" placeholder="0.00" step="0.01"></div>
+      <div class="field"><label>Rate Rs: </label><input type="number" id="new-rate" placeholder="0.00" step="0.01"></div>
       <button class="btn btn-primary" onclick="addProduct()" style="height:36px;margin-top:auto">Add</button>
     </div>
     <p style="font-size:12px;color:var(--ink3);margin-top:10px">Click any field in the table to edit it directly. Changes save automatically.</p>
@@ -685,7 +685,7 @@ function buildReceiptText() {
  
  //total line setup
   const label = "NET TOTAL ";
-  const value = '(Rs.)' + net.toFixed(2);
+  const value = ' Rs: ' + net.toFixed(2);
   const paddedValue = value.padStart(W - label.length, ' ');
    
   let r = '';
@@ -728,7 +728,7 @@ function buildReceiptText() {
   r += '-'.repeat(W) + '\n\n'; 
   r += `${label}${paddedValue}\n`;
   
-  //r += `NET TOTAL (Rs.) ${net.toFixed(2)}\n`;
+  //r += `NET TOTAL  Rs:  ${net.toFixed(2)}\n`;
    r += '-'.repeat(W) + '\n'; 
   r += '-'.repeat(W) + '\n\n\n\n\n';
   r += 'Customer Sig.& Stamp -\n\n';
@@ -1170,7 +1170,7 @@ function buildPDFDoc() {
   rule('-');
   doc.setFont('courier', 'bold');
   doc.setFontSize(8.5);
-  doc.text('NET (Rs.)', 4, y);
+  doc.text('NET  Rs: ', 4, y);
   doc.text(net.toFixed(2), 76, y, {align:'right'});
   y += LH * 1.4;
   doc.setFont('courier', 'normal');
