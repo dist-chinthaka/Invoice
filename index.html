@@ -685,16 +685,18 @@ function buildReceiptText() {
    
   let r = '';
   r +=  '\n';
+  r += cen('*******', W)+ '\n';
   r += cen(bizName, W) + '\n';
   r += cen(bizAddr, W) + '\n';
-  r += cen('dist.chinthaka@gmail.com', W) + '\n';
+  r += cen('~~~ A.M.Chinthaka Amarasinghe. ~~~', W)+ '\n';
+  r += cen('dist.chinthaka@gmail.com', W)+ '\n';
   r += cen(bizPhone, W) + '\n';
+  r += cen('*******', W)+ '\n';
  
-  r += '-'.repeat(W) + '\n';
-  r += cen('DISTRIBUTOR DETAILS', W) + '\n';
-  r += '-'.repeat(W) + '\n';
-  r += 'NAME      - A.M.Chinthaka Amarasinghe \n';
-  r += 'TELEPHONE - 071-5571437 \n\n';
+ // r += '-'.repeat(W) + '\n';
+ // r += cen('DISTRIBUTOR DETAILS', W) + '\n';
+ // r += '-'.repeat(W) + '\n';
+  
   
   
   r += '-'.repeat(W) + '\n';
@@ -725,11 +727,12 @@ function buildReceiptText() {
   
   //r += `NET TOTAL  Rs:  ${net.toFixed(2)}\n`;
    r += '-'.repeat(W) + '\n'; 
-  r += '-'.repeat(W) + '\n\n\n\n\n';
+  r += '-'.repeat(W) + '\n\n\n\n\n\n\n';
   r += 'Customer Sig.& Stamp -\n\n';
-  r += 'Date - 202.../...../.....\n';
+  r += 'Date - 2026/...../.....\n';
   r += '-'.repeat(W)+ '\n';
-  r += cen('Soft by MACMA System', W) + '\n\n\n';
+  r += cen('Soft by MACMA System', W) + '\n';
+  r += cen('*******', W)+ '\n\n\n';
   return r;
 }
 
